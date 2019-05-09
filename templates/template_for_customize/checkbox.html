@@ -1,0 +1,9 @@
+<div id="group_{{.Name}}" class="form-check{{ if .Width }}{{range .Width}} {{.}}{{end}}{{end}}">
+<input type="checkbox" name="{{.Name}}"{{ if .ID }}{{if .ID}} id="{{.ID}}"{{end}} value="{{.Value}}" class="{{range .Classes}} {{.}}{{end}}"{{end}}{{if .CSS}} style="{{range $k, $v := .CSS}}{{$k}}:{{$v}};{{end}}"{{end}}>
+{{ if .Label }}
+<label class="form-check-label" for="{{.Name}}">
+{{.Label}}
+</label>
+{{end}}
+{{ if .HelpText }}<small id="{{.Name}}Help" class="form-text text-muted">{{.HelpText}}</small>{{end}}
+</div>

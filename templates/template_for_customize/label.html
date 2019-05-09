@@ -1,0 +1,4 @@
+<div id="group_{{.Name}}" class="{{ if .Width }}{{range .Width}}{{.}} {{end}}{{end}}">
+<label{{if .ID}} name="{{.ID}}"{{end}}{{if .ID}} id="{{.ID}}"{{end}} class="control-label{{ if .Classes }}{{range .Classes}} {{.}}{{end}}{{end}}"{{if .CSS}} style="{{range $k, $v := .CSS}}{{$k}}:{{$v}};{{end}}"{{end}}>{{.Value}}</label>
+{{ if .HelpText }}<small id="{{.Name}}Help" class="form-text text-muted">{{.HelpText}}</small>{{end}}
+</div>
