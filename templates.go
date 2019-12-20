@@ -153,6 +153,7 @@ func init() {
 
 }
 
+// HTMLTemplate parse html template
 func HTMLTemplate(theme string, input string) *template.Template {
 
 	t, err := template.New("tmpl").Parse(themes[theme][input])

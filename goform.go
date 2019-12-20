@@ -82,7 +82,7 @@ func (f *Form) SetStyleTemplate(style string) {
 	f.StyleTemplate = style
 }
 
-// SetOwnStyle set style format, target different templates folder
+// SetOwnStyleTemplate set style format, target different templates folder
 // In case if any one need to use a custom templates
 func (f *Form) SetOwnStyleTemplate(style string) {
 
