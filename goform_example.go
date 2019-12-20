@@ -3,10 +3,11 @@
 // License, v. 1.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package goform
+//package goform
 
 //=============================================================================
 
+/*
 nInputs := 8
 
 // CitiesList slice of cities
@@ -46,3 +47,4 @@ form.NewButton("submit", "Update profile").AddClass("btn-danger").AddClass("btn-
 
 
 tmpl.ExecuteTemplate(w, "FormHTML", form)
+*/
