@@ -31,6 +31,8 @@ TODO:
 
 	func main () {
 
+		var res = make(map[string]interface{})
+
 		nInputs := 8
 
 		// CitiesList slice of cities
