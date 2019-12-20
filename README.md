@@ -29,9 +29,9 @@ TODO:
 		"github.com/irob/goform"
 	)
 
-	func main () {
+	var res = make(map[string]interface{})
 
-		var res = make(map[string]interface{})
+	func main () {
 
 		nInputs := 8
 
