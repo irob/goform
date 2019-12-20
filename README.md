@@ -18,8 +18,8 @@ If anyone need a custom template or custom items, `goform` has the option to cho
 
 TODO:
 - Parse HTML in textlabel element
-- Remove Functions
-- Enable Set of elements
+- Remove Elements Functions
+- Enable Set/Group of elements
 
 ## Example
 
