@@ -36,9 +36,9 @@ TODO:
 		nInputs := 8
 
 		// CitiesList slice of cities
-		var CitiesList = []OptionItem{{"", "Choose your favorite city"}, {"AMS", "Amsterdam"}, {"VEN", "Venice"}, {"KYO", "Kyoto"}, {"PAR", "Paris"}, {"DOH", "Doha"}, {"BAR", "Barcelona"}, {"SMA", "San Miguel de Allende"}, {"BUD", "Budapest"}, {"LIS", "Lisbon"}, {"FLO", "Florence"}, {"HNK", "Hong Kong"}, {"BRU", "Bruges"}}
+		var CitiesList = []goform.OptionItem{{Key: "", Value: "Choose your favorite city"}, {Key: "AMS", Value: "Amsterdam"}, {Key: "VEN", Value: "Venice"}, {Key: "KYO", Value: "Kyoto"}, {Key: "PAR", Value: "Paris"}, {Key: "DOH", Value: "Doha"}, {Key: "BAR", Value: "Barcelona"}, {Key: "SMA", Value: "San Miguel de Allende"}, {Key: "BUD", Value: "Budapest"}, {Key: "LIS", Value: "Lisbon"}, {Key: "FLO", Value: "Florence"}, {Key: "HNK", Value: "Hong Kong"}, {Key: "BRU", Value: "Bruges"}}
 		// AgeRanges slice of ranges of ages
-		var AgeRanges = []OptionItem{{"1", "1 - 9 yo"}, {"2", "10 - 19 yo"}, {"3", "20 - 29 yo"}, {"4", "30 - 39 yo"}, {"5", "40 - 49 yo"}, {"6", ">= 50 yo"}}
+		var AgeRanges = []goform.OptionItem{{Key: "1", Value: "1 - 9 yo"}, {Key: "2", Value: "10 - 19 yo"}, {Key: "3", Value: "20 - 29 yo"}, {Key: "4", Value: "30 - 39 yo"}, {Key: "5", Value: "40 - 49 yo"}, {Key: "6", Value: ">= 50 yo"}}
 
 		form := goform.Create("profile_form", "POST", "/goform")
 		//form.SetStyleTemplate("html")
