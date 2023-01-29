@@ -1,0 +1,8 @@
+<div id="group_{{.Name}}" class="{{ if .Width }}{{range .Width}}{{.}} {{end}}{{end}}">
+{{if .Label}}<label class="control-label{{ if .LabelClass }}{{range .LabelClass}} {{.}}{{end}}{{end}}"{{if .ID}} for="{{.ID}}"{{end}}>{{.Label}}</label>{{end}}
+<select name="{{.Name}}"{{if .ID}} id="{{.ID}}"{{end}} class="form-control{{ if .Classes }}{{range .Classes}} {{.}}{{end}}{{end}}"{{if .CSS}} style="{{range $k, $v := .CSS}}{{$k}}: {{$v}}; {{end}}"{{end}}>
+{{ $p := . }}{{range $option := .Options}}
+<option value="{{$option.Key}}"{{ if eq $p.Value $option.Key}} selected{{end}}>{{$option.Value}}</option>{{end}}
+</select>
+{{ if .HelpText }}<small id="{{.Name}}Help" class="form-text text-muted">{{.HelpText}}</small>{{end}}
+</div>

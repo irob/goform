@@ -1,0 +1,8 @@
+<div id="group_{{.Name}}" name="group_{{.Name}}"{{if .ID}} id="group_{{.ID}}"{{end}} class="{{ if .Width }}{{range .Width}}{{.}} {{end}}{{end}}">
+{{ if .Value }}<label class="control-label{{ if .LabelClass }}{{range .LabelClass}} {{.}}{{end}}{{end}}"{{if .ID}} for="{{.ID}}"{{end}}>{{.Value}}</label>{{end}}
+<div class="custom-file">
+<input type="file" name="{{.Name}}"{{if .ID}} id="{{.ID}}"{{end}} class="{{ if .Classes }}{{range .Classes}}{{.}} {{end}}{{end}}"{{if .CSS}} style="{{range $k, $v := .CSS}}{{$k}}:{{$v}};{{end}}"{{end}}{{if .PlaceHolder}} placeholder="{{.PlaceHolder}}"{{end}}>
+{{ if .Label }}<label class="custom-file-label" for="{{.Name}}">{{.Label}}</label>{{end}}
+</div>
+{{ if .HelpText }}<small id="{{.Name}}Help" class="form-text text-muted">{{.HelpText}}</small>{{end}}
+</div>
