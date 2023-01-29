@@ -1,3 +1,4 @@
+// Package goform Generate html forms dynamically and super simple using Golang/Go.
 package goform
 
 import (
