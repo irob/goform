@@ -6,7 +6,7 @@ goform
 Status
 =======
 
-In development V2
+In development V2.0
 
 Description
 =======
