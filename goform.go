@@ -85,7 +85,7 @@ type SortField struct {
 }
 
 type ErrorItem struct {
-	FieldName string
+	RelatedTo string
 	Message   string
 }
 
@@ -255,7 +255,6 @@ func (f *Form) SortElements() []Field {
 }
 
 // NewElement insert new form element
-// Returns the last item appended to the slice of elements
 func (f *Form) NewElement(fieldType string, fieldName string, fieldValue string) string {
 
 	// fieldName remove spaces and convert un lowercase
@@ -278,18 +277,15 @@ func (f *Form) NewElement(fieldType string, fieldName string, fieldValue string)
 		f.FormTypes[fieldType]++
 
 		_, fieldOk := f.Elements[fieldName]
-		// If the key exists
 		if !fieldOk {
 			f.Elements[fieldName] = field
 		} else {
-			logForm = append(logForm, ErrorItem{FieldName: fieldName, Message: "Exists"})
+			logForm = append(logForm, ErrorItem{RelatedTo: fieldName, Message: "Field Already Exists"})
 		}
 
 	} else {
-		logForm = append(logForm, ErrorItem{FieldName: fieldType, Message: "Type Do Not Exists"})
+		logForm = append(logForm, ErrorItem{RelatedTo: fieldType, Message: "Type Do Not Exists"})
 	}
-
-	//log.Println(f.Elements[fieldName])
 
 	return fieldName
 }
@@ -302,6 +298,18 @@ func (f *Form) NewRow(rowName string) {
 // NewButton insert a new button shortcut.
 func (f *Form) NewButton(buttonName string) {
 	f.NewElement("button", buttonName, "")
+}
+
+// SetID set/change the ID to the field.
+func (f *Form) SetID(fieldName string, id string) {
+
+	// fieldID remove spaces and convert un lowercase
+	id = strings.ToLower(id)
+	id = strings.Replace(id, " ", "", -1)
+
+	field := f.Elements[fieldName]
+	field.ID = id
+	f.Elements[fieldName] = field
 }
 
 // SetLabel set/change the text label to the field.
@@ -369,9 +377,9 @@ func LogOutput(format string) string {
 	for _, logField := range logForm {
 		switch format {
 		case "return":
-			text += logField.FieldName + " : " + logField.Message + "\n\r"
+			text += logField.RelatedTo + " : " + logField.Message + "\n\r"
 		default:
-			log.Println(logField.FieldName, logField.Message)
+			log.Println(logField.RelatedTo, logField.Message)
 		}
 	}
 	return text
