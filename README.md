@@ -31,14 +31,17 @@ TODO:
 	package main
 
 	import(
+	    "text/template"
+
 		"github.com/irob/goform"
 	)
 
-	var res = make(map[string]interface{})
+    var resp = make(map[string]interface{})
+    var tmpl = template.Must(template.ParseGlob("tmpl/*"))
 
 	func main () {
 
-		nInputs := 8
+        nInputs := 8
 
         // CitiesList slice of cities
         var CitiesList = []OptionItem{{Key: "", Value: "Choose your favorite city"}, {Key: "AMS", Value: "Amsterdam"}, {Key: "VEN", Value: "Venice"}, {Key: "KYO", Value: "Kyoto"}, {Key: "PAR", Value: "Paris"}, {Key: "DOH", Value: "Doha"}, {Key: "BAR", Value: "Barcelona"}, {Key: "SMA", Value: "San Miguel de Allende"}, {Key: "BUD", Value: "Budapest"}, {Key: "LIS", Value: "Lisbon"}, {Key: "FLO", Value: "Florence"}, {Key: "HNK", Value: "Hong Kong"}, {Key: "BRU", Value: "Bruges"}}
@@ -128,9 +131,11 @@ TODO:
         form.AddClass("button", "btn-xl")
         form.AddClass("button", "btn-block")
 
-		// Send to template
-		res["Form"] = form
-	}
+        // Send to template
+        res["Form"] = form
+
+        tmpl.ExecuteTemplate(w, "HTMLTemplate", res)
+    }
 
 In your HTML template place
 `{{ .Form.Render }}`
@@ -144,10 +149,10 @@ In your HTML template place
 
 ## Use you custom templates
 
-	/templates/template_for_customize is a templete based on Bootstrap5.
+	/templates/custom_templates is a templete based on Bootstrap5.
 
 	Step 1.-
-	Move/Copy the folder /templates into your application, rename/copy the subdirectory /template_for_customize.
+	Move/Copy the folder /templates into your application, rename/copy the subdirectory /custom_templates.
 
 	Step 2.-
 	Customize the .html files of the elements you want with your own HTML format.
