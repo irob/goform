@@ -79,7 +79,7 @@ type OptionItem struct {
 	Value string
 }
 
-type SortField struct {
+type FieldIndex struct {
 	Index int
 	Field Field
 }
@@ -235,23 +235,25 @@ func EmptyField() Field {
 // SortElements create and return empty form field
 func (f *Form) SortElements() []Field {
 
-	var elements []SortField
+	elementsIdexed := []FieldIndex{}
+	formElementsSorted := []Field{}
+
+	// Convert the Map into Slice
 	for _, v := range f.Elements {
-		elements = append(elements, SortField{v.Position, v})
+		elementsIdexed = append(elementsIdexed, FieldIndex{v.Position, v})
 	}
 
-	sort.Slice(elements, func(i, j int) bool {
-		return elements[i].Index < elements[j].Index
+	// Slice sort
+	sort.Slice(elementsIdexed, func(i, j int) bool {
+		return elementsIdexed[i].Index < elementsIdexed[j].Index
 	})
 
-	// Elements sorted
-	formElements := []Field{}
-
-	for _, sortField := range elements {
-		formElements = append(formElements, sortField.Field)
+	// Remove the index
+	for _, sortField := range elementsIdexed {
+		formElementsSorted = append(formElementsSorted, sortField.Field)
 	}
 
-	return formElements
+	return formElementsSorted
 }
 
 // NewElement insert new form element
