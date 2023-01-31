@@ -1,0 +1,7 @@
+<div id="group_{{.Name}}" class="{{ if .Width }}{{range .Width}}{{.}} {{end}}{{end}}row">
+<label{{if .ID}} name="{{.ID}}"{{end}}{{if .ID}} id="{{.ID}}"{{end}} class="col-sm-2 col-form-label{{ if .Classes }}{{range .Classes}} {{.}}{{end}}{{end}}"{{if .CSS}} style="{{range $k, $v := .CSS}}{{$k}}:{{$v}};{{end}}"{{end}}>{{.Label}}</label>
+<label class="col-sm-10">
+<input type="text" readonly class="form-control-plaintext" {{if .ID}} name="static_{{.ID}}"{{end}}{{if .ID}} id="static_{{.ID}}"{{end}} value="{{.Value}}">
+</label>
+{{ if .HelpText }}<small id="{{.Name}}Help" class="form-text text-muted">{{.HelpText}}</small>{{end}}
+</div>

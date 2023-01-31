@@ -1,0 +1,13 @@
+<div id="group_{{.Name}}" class="{{ if .Width }}{{range .Width}}{{.}} {{end}}{{end}}">
+{{if .Label}}<label class="control-label{{ if .LabelClass }}{{range .LabelClass}} {{.}}{{end}}{{end}}"{{if .ID}} for="{{.ID}}"{{end}}>{{.Label}}</label>{{end}}
+{{ $p := . }}
+{{range $option := .Options}}
+<div class="form-check">
+<input class="form-check-input" type="radio" name="{{$p.Name}}" id="{{$p.ID}}_{{$option.Key}}" value="{{$option.Key}}"{{ if eq $p.Value $option.Key}} checked{{end}}>
+<label class="form-check-label" for="{{$p.ID}}_{{$option.Key}}">
+{{$option.Value}}
+</label>
+</div>
+{{end}}
+{{ if .HelpText }}<small id="{{.Name}}Help" class="form-text text-muted">{{.HelpText}}</small>{{end}}
+</div>
