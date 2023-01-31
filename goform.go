@@ -4,34 +4,59 @@ package goform
 import (
 	"bytes"
 	"html/template"
+	"log"
 	"os"
 	"path"
+	"sort"
 	"strings"
 )
 
 var (
-	formText string
+	logForm    []ErrorItem
+	fieldTypes = map[string]string{
+		"label":     "label",
+		"text":      "text",
+		"textlabel": "textlabel",
+		"password":  "password",
+		"select":    "select",
+		"radio":     "radio",
+		"textarea":  "textarea",
+		"checkbox":  "checkbox",
+		"file":      "file",
+		"hidden":    "hidden",
+		"button":    "button",
+		"submit":    "submit",
+		"row":       "row",
+	}
 )
 
 // Form structure.
 type Form struct {
-	Name          string
-	ID            string
-	Method        string
-	Action        string
-	StyleTemplate string
-	StyleOrigin   string
-	FormTypes     map[string]int
-	FormElements  []Field
-	Classes       []string
-	CSS           map[string]string
-	FormText      string
-	FormTemplates map[string]*template.Template
-	GroupClass    []string
+	Name              string
+	ID                string
+	Method            string
+	Action            string
+	MultipartFormData string
+	TemplateStyle     string
+	TemplateSource    string
+	FormTypes         map[string]int
+	Elements          map[string]Field
+	Classes           []string
+	CSS               map[string]string
+	FormText          string
+	FormTemplates     map[string]*template.Template
+	GroupClass        []string
+}
+
+// Element structure.
+type Element struct {
+	ID   int
+	Name string
 }
 
 // Field structure.
 type Field struct {
+	Position    int
 	FieldType   string
 	Name        string
 	ID          string
@@ -54,6 +79,16 @@ type OptionItem struct {
 	Value string
 }
 
+type FieldIndex struct {
+	Index int
+	Field Field
+}
+
+type ErrorItem struct {
+	RelatedTo string
+	Message   string
+}
+
 //=============================================================================
 
 // Create configure a new Form structure
@@ -64,10 +99,11 @@ func Create(name string, method string, action string) *Form {
 		name,
 		method,
 		action,
-		"bootstrap4",
+		"disabled",
+		"bootstrap5",
 		"",
 		make(map[string]int),
-		[]Field{},
+		make(map[string]Field),
 		[]string{},
 		make(map[string]string),
 		"",
@@ -76,18 +112,24 @@ func Create(name string, method string, action string) *Form {
 	}
 }
 
-// SetStyleTemplate set style format, (html or bootstrap4: default option)
-func (f *Form) SetStyleTemplate(style string) {
+// SetMultipartFormData set style format, (html or bootstrap5: default option)
+func (f *Form) SetMultipartFormData(status string) {
 
-	f.StyleTemplate = style
+	f.MultipartFormData = status
 }
 
-// SetOwnStyleTemplate set style format, target different templates folder
-// In case if any one need to use a custom templates
-func (f *Form) SetOwnStyleTemplate(style string) {
+// SetTemplateStyle set style format, (html or bootstrap5: default option)
+func (f *Form) SetTemplateStyle(style string) {
 
-	f.StyleTemplate = style
-	f.StyleOrigin = "OWN"
+	f.TemplateStyle = style
+}
+
+// SetOwnTemplateStyle set style format, target different templates folder
+// In case if any one need to use a custom templates
+func (f *Form) SetOwnTemplateStyle(style string) {
+
+	f.TemplateStyle = style
+	f.TemplateSource = "OWN"
 }
 
 // DefaultGroupClass set default group classes for all the elements
@@ -104,9 +146,9 @@ func (f *Form) Render() template.HTML {
 	cwd := ""
 	var err error
 
-	if f.StyleOrigin == "OWN" {
+	if f.TemplateSource == "OWN" {
 		cwd, _ = os.Getwd()
-		cwd += path.Join("/templates/", f.StyleTemplate, ".html")
+		cwd += path.Join("/templates/", f.TemplateStyle, ".html")
 
 		tmpl, err = template.ParseFiles(cwd)
 		if err != nil {
@@ -114,7 +156,7 @@ func (f *Form) Render() template.HTML {
 		}
 
 	} else {
-		tmpl = HTMLTemplate(f.StyleTemplate, "form")
+		tmpl = HTMLTemplate(f.TemplateStyle, "form")
 	}
 
 	tmpl.Execute(buf, f)
@@ -125,6 +167,8 @@ func (f *Form) Render() template.HTML {
 // RenderElements returns form elements generated in plain format
 func (f *Form) RenderElements() template.HTML {
 
+	elementsSort := f.SortElements()
+
 	var tmpl *template.Template
 	buf := new(bytes.Buffer)
 	cwd := ""
@@ -133,23 +177,23 @@ func (f *Form) RenderElements() template.HTML {
 	// Load ONCE all the necesary templates depending the input types
 	for keyTemplate := range f.FormTypes {
 
-		if f.StyleOrigin == "OWN" {
+		if f.TemplateSource == "OWN" {
 			cwd, _ = os.Getwd()
-			cwd += path.Join("templates", f.StyleTemplate, keyTemplate, ".html")
+			cwd += path.Join("templates", f.TemplateStyle, keyTemplate, ".html")
 
 			tmpl, err = template.ParseFiles(cwd)
 			if err != nil {
 				panic(err)
 			}
 		} else {
-			tmpl = HTMLTemplate(f.StyleTemplate, keyTemplate)
+			tmpl = HTMLTemplate(f.TemplateStyle, keyTemplate)
 		}
 
 		f.FormTemplates[keyTemplate] = tmpl
 	}
 
 	// Apply the template to each item of the form
-	for _, itemForm := range f.FormElements {
+	for _, itemForm := range elementsSort {
 
 		// Apply the default classes if exists, only if the element have not own group classes
 		if len(itemForm.GroupClass) == 0 && len(f.GroupClass) > 0 {
@@ -170,6 +214,7 @@ func (f *Form) RenderElements() template.HTML {
 func EmptyField() Field {
 
 	field := Field{}
+	field.Position = 0
 	field.FieldType = ""
 	field.Name = ""
 	field.ID = ""
@@ -187,132 +232,157 @@ func EmptyField() Field {
 	return field
 }
 
+// SortElements create and return empty form field
+func (f *Form) SortElements() []Field {
+
+	elementsIdexed := []FieldIndex{}
+	formElementsSorted := []Field{}
+
+	// Convert the Map into Slice
+	for _, v := range f.Elements {
+		elementsIdexed = append(elementsIdexed, FieldIndex{v.Position, v})
+	}
+
+	// Slice sort
+	sort.Slice(elementsIdexed, func(i, j int) bool {
+		return elementsIdexed[i].Index < elementsIdexed[j].Index
+	})
+
+	// Remove the index
+	for _, sortField := range elementsIdexed {
+		formElementsSorted = append(formElementsSorted, sortField.Field)
+	}
+
+	return formElementsSorted
+}
+
 // NewElement insert new form element
-// Returns the last item appended to the slice of elements
-func (f *Form) NewElement(fieldType string, fieldName string, fieldValue string) *Field {
+func (f *Form) NewElement(fieldType string, fieldName string, fieldValue string) string {
 
 	// fieldName remove spaces and convert un lowercase
 	fieldName = strings.ToLower(fieldName)
 	fieldName = strings.Replace(fieldName, " ", "", -1)
 
-	field := EmptyField()
-	field.FieldType = fieldType
-	field.Name = fieldName
-	field.ID = fieldName
-	field.Value = fieldValue
+	_, typeOk := fieldTypes[fieldType]
+	// If the key exists
+	if typeOk {
 
-	// Apped/Or Increase the input-type counter of FormTypes map
-	// This map will is used in the RenderElements function
-	f.FormTypes[fieldType]++
+		field := EmptyField()
+		field.Position = len(f.Elements) + 1
+		field.FieldType = fieldType
+		field.Name = fieldName
+		field.ID = fieldName
+		field.Value = fieldValue
 
-	f.FormElements = append(f.FormElements, field)
-	return &f.FormElements[len(f.FormElements)-1]
+		// Apped/Or Increase the input-type counter of FormTypes map
+		// This map will is used in the RenderElements function
+		f.FormTypes[fieldType]++
+
+		_, fieldOk := f.Elements[fieldName]
+		if !fieldOk {
+			f.Elements[fieldName] = field
+		} else {
+			logForm = append(logForm, ErrorItem{RelatedTo: fieldName, Message: "Field Already Exists"})
+		}
+
+	} else {
+		logForm = append(logForm, ErrorItem{RelatedTo: fieldType, Message: "Type Do Not Exists"})
+	}
+
+	return fieldName
 }
 
-// NewButton insert new button element.
-// Returns the last item appended to the slice of elements
-func (f *Form) NewButton(buttonType string, fieldValue string) *Field {
-
-	// fieldName remove spaces and convert un lowercase
-	fieldName := strings.ToLower(buttonType)
-	fieldName = strings.Replace(fieldName, " ", "", -1)
-
-	field := EmptyField()
-	field.FieldType = buttonType
-	field.Name = fieldName
-	field.ID = fieldName
-	field.Value = fieldValue
-
-	// Apped/Or Increase the input-type counter of FormTypes map
-	// This map will is used in the RenderElements function
-	f.FormTypes[buttonType]++
-
-	f.FormElements = append(f.FormElements, field)
-	return &f.FormElements[len(f.FormElements)-1]
-}
-
-// NewRow insert a new row.
+// NewRow insert a new row shortcut.
 func (f *Form) NewRow(rowName string) {
+	f.NewElement("row", rowName, "")
+}
 
-	// fieldName remove spaces and convert un lowercase
-	fieldName := strings.ToLower(rowName)
-	fieldName = strings.Replace(fieldName, " ", "", -1)
-
-	field := EmptyField()
-	field.FieldType = "row"
-	field.Name = fieldName
-	field.ID = fieldName
-
-	// Apped/Or Increase the input-type counter of FormTypes map
-	// This map will is used in the RenderElements function
-	f.FormTypes["row"]++
-
-	f.FormElements = append(f.FormElements, field)
+// NewButton insert a new button shortcut.
+func (f *Form) NewButton(buttonName string) {
+	f.NewElement("button", buttonName, "")
 }
 
 // SetID set/change the ID to the field.
-func (f *Field) SetID(id string) *Field {
+func (f *Form) SetID(fieldName string, id string) {
 
 	// fieldID remove spaces and convert un lowercase
 	id = strings.ToLower(id)
 	id = strings.Replace(id, " ", "", -1)
 
-	f.ID = id
-	return f
+	field := f.Elements[fieldName]
+	field.ID = id
+	f.Elements[fieldName] = field
 }
 
 // SetLabel set/change the text label to the field.
-func (f *Field) SetLabel(label string) *Field {
-	f.Label = label
-	return f
+func (f *Form) SetLabel(fieldName string, label string) {
+	field := f.Elements[fieldName]
+	field.Label = label
+	f.Elements[fieldName] = field
 }
 
-// ADD/SET Functions
-
 // AddClass adds a class to the input.
-func (f *Field) AddClass(class string) *Field {
-	f.Classes = append(f.Classes, class)
-	return f
+func (f *Form) AddClass(fieldName string, class string) {
+	field := f.Elements[fieldName]
+	field.Classes = append(field.Classes, class)
+	f.Elements[fieldName] = field
 }
 
 // AddCSS add a CSS value (in the form of option-value - e.g.: color - red).
-func (f *Field) AddCSS(key, value string) *Field {
-	f.CSS[key] = value
-	return f
+func (f *Form) AddCSS(fieldName string, key, value string) {
+	f.Elements[fieldName].CSS[key] = value
 }
 
 // AddLabelClass adds a class to the label of the input.
-func (f *Field) AddLabelClass(class string) *Field {
-	f.LabelClass = append(f.LabelClass, class)
-	return f
+func (f *Form) AddLabelClass(fieldName string, class string) {
+	field := f.Elements[fieldName]
+	field.LabelClass = append(field.LabelClass, class)
+	f.Elements[fieldName] = field
 }
 
 // SetOptions set/change the Options of the dropdown.
-func (f *Field) SetOptions(options []OptionItem) *Field {
-	f.Options = options
-	return f
+func (f *Form) SetOptions(fieldName string, options []OptionItem) {
+	field := f.Elements[fieldName]
+	field.Options = options
+	f.Elements[fieldName] = field
 }
 
 // SetPlaceHolder set the placeholder text to the input.
-func (f *Field) SetPlaceHolder(placeholder string) *Field {
-	f.PlaceHolder = placeholder
-	return f
+func (f *Form) SetPlaceHolder(fieldName string, placeholder string) {
+	field := f.Elements[fieldName]
+	field.PlaceHolder = placeholder
+	f.Elements[fieldName] = field
 }
 
 // SetHelpText set the help-text to the input.
-func (f *Field) SetHelpText(helptext string) *Field {
-	f.HelpText = helptext
-	return f
+func (f *Form) SetHelpText(fieldName string, helptext string) {
+	field := f.Elements[fieldName]
+	field.HelpText = helptext
+	f.Elements[fieldName] = field
 }
 
 // AddParams add a Param value (in the form of option-value - e.g.: maxlength - 15).
-func (f *Field) AddParams(key, value string) *Field {
-	f.Params[key] = value
-	return f
+func (f *Form) AddParams(fieldName string, key, value string) {
+	f.Elements[fieldName].Params[key] = value
 }
 
 // AddGroupClass adds a class to the group input.
-func (f *Field) AddGroupClass(class string) *Field {
-	f.GroupClass = append(f.GroupClass, class)
-	return f
+func (f *Form) AddGroupClass(fieldName string, class string) {
+	field := f.Elements[fieldName]
+	field.GroupClass = append(field.GroupClass, class)
+	f.Elements[fieldName] = field
+}
+
+// LogOutput display the Log
+func LogOutput(format string) string {
+	text := ""
+	for _, logField := range logForm {
+		switch format {
+		case "return":
+			text += logField.RelatedTo + " : " + logField.Message + "\n\r"
+		default:
+			log.Println(logField.RelatedTo, logField.Message)
+		}
+	}
+	return text
 }

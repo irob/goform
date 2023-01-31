@@ -1,7 +1,13 @@
+=======
 goform
 =======
 
 `goform` generate HTML forms dynamically and super easy using Golang/Go.
+
+Status
+=======
+
+In development V2.0
 
 Description
 =======
@@ -9,10 +15,10 @@ Description
 `goform` is a super simple form generator, create dynamic forms without having to write HTML.
 
 Templates included:
-- bootstrap4
+- bootstrap5
 - html
 
-By default `goform` render forms in `Bootstrap 4` style, also its posible to choose `html` format, where the inputs are render in plain html (no divs, no labels, ...)
+By default `goform` render forms in `Bootstrap 5` style, also its posible to choose `html` format, where the inputs are render in plain html (no divs, no labels, ...)
 
 If anyone need a custom template or custom items, `goform` has the option to choose custom template.
 
@@ -26,53 +32,111 @@ TODO:
 	package main
 
 	import(
-		"github.com/irob/goform"
+        "text/template"
+
+        "github.com/irob/goform"
 	)
 
-	var res = make(map[string]interface{})
+    var resp = make(map[string]interface{})
+    var tmpl = template.Must(template.ParseGlob("tmpl/*"))
 
 	func main () {
 
-		nInputs := 8
+        nInputs := 8
 
-		// CitiesList slice of cities
-		var CitiesList = []goform.OptionItem{{Key: "", Value: "Choose your favorite city"}, {Key: "AMS", Value: "Amsterdam"}, {Key: "VEN", Value: "Venice"}, {Key: "KYO", Value: "Kyoto"}, {Key: "PAR", Value: "Paris"}, {Key: "DOH", Value: "Doha"}, {Key: "BAR", Value: "Barcelona"}, {Key: "SMA", Value: "San Miguel de Allende"}, {Key: "BUD", Value: "Budapest"}, {Key: "LIS", Value: "Lisbon"}, {Key: "FLO", Value: "Florence"}, {Key: "HNK", Value: "Hong Kong"}, {Key: "BRU", Value: "Bruges"}}
-		// AgeRanges slice of ranges of ages
-		var AgeRanges = []goform.OptionItem{{Key: "1", Value: "1 - 9 yo"}, {Key: "2", Value: "10 - 19 yo"}, {Key: "3", Value: "20 - 29 yo"}, {Key: "4", Value: "30 - 39 yo"}, {Key: "5", Value: "40 - 49 yo"}, {Key: "6", Value: ">= 50 yo"}}
+        // CitiesList slice of cities
+        var CitiesList = []OptionItem{{Key: "", Value: "Choose your favorite city"}, {Key: "AMS", Value: "Amsterdam"}, {Key: "VEN", Value: "Venice"}, {Key: "KYO", Value: "Kyoto"}, {Key: "PAR", Value: "Paris"}, {Key: "DOH", Value: "Doha"}, {Key: "BAR", Value: "Barcelona"}, {Key: "SMA", Value: "San Miguel de Allende"}, {Key: "BUD", Value: "Budapest"}, {Key: "LIS", Value: "Lisbon"}, {Key: "FLO", Value: "Florence"}, {Key: "HNK", Value: "Hong Kong"}, {Key: "BRU", Value: "Bruges"}}
+        // AgeRanges slice of ranges of ages
+        var AgeRanges = []OptionItem{{Key: "1", Value: "1 - 9 yo"}, {Key: "2", Value: "10 - 19 yo"}, {Key: "3", Value: "20 - 29 yo"}, {Key: "4", Value: "30 - 39 yo"}, {Key: "5", Value: "40 - 49 yo"}, {Key: "6", Value: ">= 50 yo"}}
 
-		form := goform.Create("profile_form", "POST", "/goform")
-		//form.SetStyleTemplate("html")
-		//form.SetOwnStyleTemplate("local_custom_template") // Local template files
-		form.DefaultGroupClass("col-md-12")
-		form.DefaultGroupClass("mb-2")
-		form.NewElement("label", "userdetails", "User profile").AddCSS("font-size", "2em").AddCSS("font-weight", "bold").AddCSS("font-weight", "bold")
-		form.NewElement("textlabel", "username", "john@bender.com").SetLabel("Your username:").AddCSS("font-weight", "bold").AddCSS("font-weight", "bold")
-		form.NewElement("text", "name", "").SetLabel("What's your name").SetID("name").SetPlaceHolder("What's your name").AddCSS("color", "red")
+        form := Create("profile_form", "POST", "/goform")
 
-		form.NewElement("radio", "age_range", "").SetLabel("Age range").SetOptions(AgeRanges)
+        // Label input
+        form.NewElement("label", "userdetails", "User profile")
 
-		form.NewElement("label", "address_info", "Full address").AddGroupClass("col-md-2").AddGroupClass("mb-2")
-		form.NewElement("text", "street", "").SetPlaceHolder("Street").AddParams("maxlength", "20").AddGroupClass("col-md-4").AddGroupClass("mb-2")
-		form.NewElement("text", "number", "").SetPlaceHolder("Number").AddParams("maxlength", "20").AddGroupClass("col-md-2").AddGroupClass("mb-2")
-		form.NewElement("select", "city", "VEN").SetOptions(CitiesList).AddGroupClass("col-md-4").AddGroupClass("mb-2")
+        // Text input
+        form.NewElement("text", "text", "")
+        form.SetLabel("text", "What's your name")
 
-		form.NewRow("skills")
-		// Dyanmic inputs
-		for i := 1; i <= nInputs; i++ {
-			form.NewElement("text", "skill_"+strconv.Itoa(i), "").SetPlaceHolder("Skill " + strconv.Itoa(i)).AddGroupClass("col-md-6").AddGroupClass("mb-2")
-		}
+        // Textlabel input
+        form.NewElement("textlabel", "username", "john@bender.com")
+        form.SetLabel("username", "Your username:")
 
-		form.NewElement("textarea", "resume", "Resume").AddCSS("font-weight", "bold").SetHelpText("Error, must write a resume description")
-		form.NewElement("password", "password", "").SetLabel("Set new password").SetPlaceHolder("Set new password").SetHelpText("Use upper and lower case, numbers and special characters")
-		form.NewElement("file", "pic", "Attach your photo")
-		form.NewElement("checkbox", "legal", "").SetLabel(" Must read and accept Legal/Privacy")
-		form.NewElement("hidden", "id", "1")
+        // Password input
+        form.NewElement("password", "password", "")
 
-		form.NewButton("submit", "Update profile").AddClass("btn-danger").AddClass("btn-lg").AddClass("btn-xl").AddClass("btn-block")
+        // Select input
+        form.NewElement("select", "select", "VEN")
+        form.SetOptions("select", CitiesList)
 
-		// Send to template
-		res["Form"] = form
-	}
+        // Radio input
+        form.NewElement("radio", "radio", "")
+        form.SetLabel("radio", "Age range")
+        form.SetOptions("radio", AgeRanges)
+
+        // Textarea
+        form.NewElement("textarea", "textarea", "")
+        form.SetHelpText("textarea", "Error, must write a resume description")
+
+        // Checkbox
+        form.NewElement("checkbox", "checkbox", "")
+
+        // File input
+        form.NewElement("file", "file", "")
+
+        // Hidden
+        form.NewElement("hidden", "hidden", "")
+
+        // Full address init
+        form.NewElement("label", "address_info", "Full address")
+        form.AddGroupClass("address_info", "col-md-2")
+        form.AddGroupClass("address_info", "mb-2")
+
+        form.NewElement("text", "street", "")
+        form.SetPlaceHolder("street", "Street")
+        form.AddParams("street", "maxlength", "20")
+        form.AddGroupClass("street", "col-md-4")
+        form.AddGroupClass("street", "mb-2")
+
+        form.NewElement("text", "number", "")
+        form.SetPlaceHolder("number", "Number")
+        form.AddParams("number", "maxlength", "20")
+        form.AddGroupClass("number", "col-md-2")
+        form.AddGroupClass("number", "mb-2")
+
+        form.NewElement("select", "city", "VEN")
+        form.SetOptions("city", CitiesList)
+        form.AddGroupClass("city", "col-md-4")
+        form.AddGroupClass("city", "mb-2")
+        // Full address end
+
+        form.NewRow("skills")
+        // Dyanmic inputs
+        for i := 1; i <= nInputs; i++ {
+            form.NewElement("text", "skill_"+strconv.Itoa(i), "")
+            form.SetPlaceHolder("skill_"+strconv.Itoa(i), "Skill "+strconv.Itoa(i))
+            form.AddGroupClass("skill_"+strconv.Itoa(i), "col-md-6")
+            form.AddGroupClass("skill_"+strconv.Itoa(i), "mb-2")
+        }
+
+        // Buttons
+        form.NewElement("submit", "submit", "Update profile")
+        form.AddClass("submit", "btn-success")
+        form.AddClass("submit", "btn-lg")
+        form.AddClass("submit", "btn-xl")
+        form.AddClass("submit", "btn-block")
+
+        form.NewElement("button", "button", "Update profile")
+        form.AddClass("button", "btn-danger")
+        form.AddClass("button", "btn-lg")
+        form.AddClass("button", "btn-xl")
+        form.AddClass("button", "btn-block")
+
+        // Send to template
+        res["Form"] = form
+
+        tmpl.ExecuteTemplate(w, "HTMLTemplate", res)
+    }
 
 In your HTML template place
 `{{ .Form.Render }}`
@@ -86,10 +150,10 @@ In your HTML template place
 
 ## Use you custom templates
 
-	/templates/template_for_customize is a templete based on Bootstrap4.
+	/templates/custom_templates is a templete based on Bootstrap5.
 
 	Step 1.-
-	Move/Copy the folder /templates into your application, rename/copy the subdirectory /template_for_customize.
+	Move/Copy the folder /templates into your application, rename/copy the subdirectory /custom_templates.
 
 	Step 2.-
 	Customize the .html files of the elements you want with your own HTML format.

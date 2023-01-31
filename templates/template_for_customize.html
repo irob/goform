@@ -1,5 +1,0 @@
-<form{{if .Name}} name="{{.Name}}"{{end}}{{if .ID}} id="{{.ID}}"{{end}} method="{{ .Method }}" action="{{ .Action }}"{{if .CSS}} style="{{range $k, $v := .CSS}}{{$k}}: {{$v}}; {{end}}"{{end}} enctype="multipart/form-data" class="{{ if .Classes }}{{range .Classes}} {{.}}{{end}}{{end}}">
-	<div class="row" name="row_main" id="row_main">
-		{{ .RenderElements }}
-	</div>
-</form>
