@@ -36,7 +36,7 @@ TODO:
         "github.com/irob/goform"
 	)
 
-    var resp = make(map[string]interface{})
+    var res = make(map[string]interface{})
     var tmpl = template.Must(template.ParseGlob("tmpl/*"))
 
 	func main () {
