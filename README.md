@@ -43,93 +43,96 @@ TODO:
 
         nInputs := 8
 
-        // CitiesList slice of cities
-        var CitiesList = []OptionItem{{Key: "", Value: "Choose your favorite city"}, {Key: "AMS", Value: "Amsterdam"}, {Key: "VEN", Value: "Venice"}, {Key: "KYO", Value: "Kyoto"}, {Key: "PAR", Value: "Paris"}, {Key: "DOH", Value: "Doha"}, {Key: "BAR", Value: "Barcelona"}, {Key: "SMA", Value: "San Miguel de Allende"}, {Key: "BUD", Value: "Budapest"}, {Key: "LIS", Value: "Lisbon"}, {Key: "FLO", Value: "Florence"}, {Key: "HNK", Value: "Hong Kong"}, {Key: "BRU", Value: "Bruges"}}
-        // AgeRanges slice of ranges of ages
-        var AgeRanges = []OptionItem{{Key: "1", Value: "1 - 9 yo"}, {Key: "2", Value: "10 - 19 yo"}, {Key: "3", Value: "20 - 29 yo"}, {Key: "4", Value: "30 - 39 yo"}, {Key: "5", Value: "40 - 49 yo"}, {Key: "6", Value: ">= 50 yo"}}
+		// CitiesList slice of cities
+		var CitiesList = []OptionItem{{Key: "", Value: "Choose your favorite city"}, {Key: "AMS", Value: "Amsterdam"}, {Key: "VEN", Value: "Venice"}, {Key: "KYO", Value: "Kyoto"}, {Key: "PAR", Value: "Paris"}, {Key: "DOH", Value: "Doha"}, {Key: "BAR", Value: "Barcelona"}, {Key: "SMA", Value: "San Miguel de Allende"}, {Key: "BUD", Value: "Budapest"}, {Key: "LIS", Value: "Lisbon"}, {Key: "FLO", Value: "Florence"}, {Key: "HNK", Value: "Hong Kong"}, {Key: "BRU", Value: "Bruges"}}
+		// AgeRanges slice of ranges of ages
+		var AgeRanges = []OptionItem{{Key: "1", Value: "1 - 9 yo"}, {Key: "2", Value: "10 - 19 yo"}, {Key: "3", Value: "20 - 29 yo"}, {Key: "4", Value: "30 - 39 yo"}, {Key: "5", Value: "40 - 49 yo"}, {Key: "6", Value: ">= 50 yo"}}
 
-        form := Create("profile_form", "POST", "/goform")
+		form := Create("profile_form", "POST", "/goform")
 
-        // Label input
-        form.NewElement("label", "userdetails", "User profile")
+		form.DefaultGroupClass("col-md-12")
+		form.DefaultGroupClass("mb-2")
 
-        // Text input
-        form.NewElement("text", "text", "")
-        form.SetLabel("text", "What's your name")
+		// Label input
+		form.NewElement("label", "userdetails", "User profile")
 
-        // Textlabel input
-        form.NewElement("textlabel", "username", "john@bender.com")
-        form.SetLabel("username", "Your username:")
+		// Text input
+		form.NewElement("text", "text", "")
+		form.SetLabel("text", "What's your name")
 
-        // Password input
-        form.NewElement("password", "password", "")
+		// Textlabel input
+		form.NewElement("textlabel", "username", "john@bender.com")
+		form.SetLabel("username", "Your username:")
 
-        // Select input
-        form.NewElement("select", "select", "VEN")
-        form.SetOptions("select", CitiesList)
+		// Password input
+		form.NewElement("password", "password", "")
 
-        // Radio input
-        form.NewElement("radio", "radio", "")
-        form.SetLabel("radio", "Age range")
-        form.SetOptions("radio", AgeRanges)
+		// Select input
+		form.NewElement("select", "select", "VEN")
+		form.SetOptions("select", CitiesList)
 
-        // Textarea
-        form.NewElement("textarea", "textarea", "")
-        form.SetHelpText("textarea", "Error, must write a resume description")
+		// Radio input
+		form.NewElement("radio", "radio", "")
+		form.SetLabel("radio", "Age range")
+		form.SetOptions("radio", AgeRanges)
 
-        // Checkbox
-        form.NewElement("checkbox", "checkbox", "")
+		// Textarea
+		form.NewElement("textarea", "textarea", "")
+		form.SetHelpText("textarea", "Error, must write a resume description")
 
-        // File input
-        form.NewElement("file", "file", "")
+		// Checkbox
+		form.NewElement("checkbox", "checkbox", "")
 
-        // Hidden
-        form.NewElement("hidden", "hidden", "")
+		// File input
+		form.NewElement("file", "file", "")
 
-        // Full address init
-        form.NewElement("label", "address_info", "Full address")
-        form.AddGroupClass("address_info", "col-md-2")
-        form.AddGroupClass("address_info", "mb-2")
+		// Hidden
+		form.NewElement("hidden", "hidden", "")
 
-        form.NewElement("text", "street", "")
-        form.SetPlaceHolder("street", "Street")
-        form.AddParams("street", "maxlength", "20")
-        form.AddGroupClass("street", "col-md-4")
-        form.AddGroupClass("street", "mb-2")
+		// Full address init
+		form.NewElement("label", "address_info", "Full address")
+		form.AddGroupClass("address_info", "col-md-2")
+		form.AddGroupClass("address_info", "mb-2")
 
-        form.NewElement("text", "number", "")
-        form.SetPlaceHolder("number", "Number")
-        form.AddParams("number", "maxlength", "20")
-        form.AddGroupClass("number", "col-md-2")
-        form.AddGroupClass("number", "mb-2")
+		form.NewElement("text", "street", "")
+		form.SetPlaceHolder("street", "Street")
+		form.AddParams("street", "maxlength", "20")
+		form.AddGroupClass("street", "col-md-4")
+		form.AddGroupClass("street", "mb-2")
 
-        form.NewElement("select", "city", "VEN")
-        form.SetOptions("city", CitiesList)
-        form.AddGroupClass("city", "col-md-4")
-        form.AddGroupClass("city", "mb-2")
-        // Full address end
+		form.NewElement("text", "number", "")
+		form.SetPlaceHolder("number", "Number")
+		form.AddParams("number", "maxlength", "20")
+		form.AddGroupClass("number", "col-md-2")
+		form.AddGroupClass("number", "mb-2")
 
-        form.NewRow("skills")
-        // Dyanmic inputs
-        for i := 1; i <= nInputs; i++ {
-            form.NewElement("text", "skill_"+strconv.Itoa(i), "")
-            form.SetPlaceHolder("skill_"+strconv.Itoa(i), "Skill "+strconv.Itoa(i))
-            form.AddGroupClass("skill_"+strconv.Itoa(i), "col-md-6")
-            form.AddGroupClass("skill_"+strconv.Itoa(i), "mb-2")
-        }
+		form.NewElement("select", "city", "VEN")
+		form.SetOptions("city", CitiesList)
+		form.AddGroupClass("city", "col-md-4")
+		form.AddGroupClass("city", "mb-2")
+		// Full address end
 
-        // Buttons
-        form.NewElement("submit", "submit", "Update profile")
-        form.AddClass("submit", "btn-success")
-        form.AddClass("submit", "btn-lg")
-        form.AddClass("submit", "btn-xl")
-        form.AddClass("submit", "btn-block")
+		form.NewRow("skills")
+		// Dyanmic inputs
+		for i := 1; i <= nInputs; i++ {
+			form.NewElement("text", "skill_"+strconv.Itoa(i), "")
+			form.SetPlaceHolder("skill_"+strconv.Itoa(i), "Skill "+strconv.Itoa(i))
+			form.AddGroupClass("skill_"+strconv.Itoa(i), "col-md-6")
+			form.AddGroupClass("skill_"+strconv.Itoa(i), "mb-2")
+		}
 
-        form.NewElement("button", "button", "Update profile")
-        form.AddClass("button", "btn-danger")
-        form.AddClass("button", "btn-lg")
-        form.AddClass("button", "btn-xl")
-        form.AddClass("button", "btn-block")
+		// Buttons
+		form.NewElement("submit", "submit", "Update profile")
+		form.AddClass("submit", "btn-success")
+		form.AddClass("submit", "btn-lg")
+		form.AddClass("submit", "btn-xl")
+		form.AddClass("submit", "btn-block")
+		form.AddClass("submit", "w-100")
+
+		form.NewElement("button", "button", "Cancel edit profile")
+		form.AddClass("button", "btn-secondary")
+		form.AddClass("button", "btn-lg")
+		form.AddClass("button", "btn-xl")
 
         // Send to template
         res["Form"] = form
